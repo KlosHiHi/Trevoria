@@ -27,7 +27,7 @@
 
         <Button x:Name="CenterUserLocation" Grid.Column="5" Text="1" Margin="10" HeightRequest="10"
                 Clicked="CenterUserLocation_Clicked"/>
-        
+
         <wits:BottomSheet x:Name="MainBottomSheet" Grid.Row="1" Grid.ColumnSpan="5" Margin="-8">
             <wits:BottomSheet.SheetStops>
                 <wits:SheetStop Measurement="Fixed" Value="20" />
@@ -57,7 +57,7 @@
                 <AbsoluteLayout>
                     <Label Text="Предложенные варианты" TextColor="DarkGray" FontSize="20" AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional"/>
                 </AbsoluteLayout>
-                
+
             </StackLayout>
         </wits:BottomSheet>
     </Grid>
