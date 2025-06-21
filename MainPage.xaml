@@ -2,8 +2,63 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
+             xmlns:skia="clr-namespace:SkiaSharp;assembly=SkiaSharp"
+             xmlns:wits="http://what.is.this.sheet/schemas/controls"
              x:Class="Trevoria.MainPage">
 
-    <mapsui:MapView x:Name="mapControl"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
 
+        <mapsui:MapView x:Name="mapView" Grid.RowSpan="2" Grid.ColumnSpan="5" IsMyLocationButtonVisible="False" IsNorthingButtonVisible="False" IsZoomButtonVisible="False"/>
+
+        <Frame CornerRadius="20" Margin="10" HeightRequest="50" BackgroundColor="White" Grid.ColumnSpan="3" BorderColor="Transparent">
+            <Entry Grid.Row="0" HeightRequest="50" HorizontalOptions="Fill" 
+                   Placeholder="Введите местоположение..." PlaceholderColor="DarkGray" TextColor="Black"/>
+        </Frame>
+
+        <Button x:Name="CenterUserLocation" Grid.Column="5" Text="1" Margin="10" HeightRequest="10"
+                Clicked="CenterUserLocation_Clicked"/>
+        
+        <wits:BottomSheet x:Name="MainBottomSheet" Grid.Row="1" Grid.ColumnSpan="5" Margin="-8">
+            <wits:BottomSheet.SheetStops>
+                <wits:SheetStop Measurement="Fixed" Value="20" />
+                <wits:SheetStop Measurement="Percentage" Value=".25" />
+            </wits:BottomSheet.SheetStops>
+            <StackLayout Padding="8" Spacing="8">
+                <ScrollView Orientation="Horizontal">
+                    <StackLayout Orientation="Horizontal">
+                        <Button Text="Маршрут" WidthRequest="120" Margin="5"/>
+                        <Button Text="Избранное" WidthRequest="120" Margin="5"/>
+                        <Button Text="История" WidthRequest="120" Margin="5"/>
+                        <Button Text="Профиль" WidthRequest="120" Margin="5"/>
+                    </StackLayout>
+                </ScrollView>
+                <AbsoluteLayout>
+                    <Label Text="Выбор" TextColor="DarkGray" FontSize="20" AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional"/>
+                </AbsoluteLayout>
+                <Frame CornerRadius="20" Margin="10" HeightRequest="50" BackgroundColor="LightGray" Grid.ColumnSpan="3" BorderColor="Transparent">
+                    <Entry x:Name="LocationFromEntry" HeightRequest="50" Placeholder="Откуда" HorizontalTextAlignment="Center" PlaceholderColor="DarkGray" TextColor="Black"/>
+                </Frame>
+                <AbsoluteLayout>
+                    <Button x:Name="ChangeDirectionButton" Text="↕️" TextColor="DarkGray" FontSize="20"  AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional" Clicked="ChangeDirectionButton_Clicked"/>
+                </AbsoluteLayout>
+                <Frame CornerRadius="20" Margin="10" HeightRequest="50" BackgroundColor="LightGray" Grid.ColumnSpan="3" BorderColor="Transparent">
+                    <Entry x:Name="LocationToEntry" HeightRequest="50" Placeholder="Куда" HorizontalTextAlignment="Center" PlaceholderColor="DarkGray" TextColor="Black"/>
+                </Frame>
+                <AbsoluteLayout>
+                    <Label Text="Предложенные варианты" TextColor="DarkGray" FontSize="20" AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional"/>
+                </AbsoluteLayout>
+                
+            </StackLayout>
+        </wits:BottomSheet>
+    </Grid>
 </ContentPage>

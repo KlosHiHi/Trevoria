@@ -8,6 +8,8 @@ namespace Trevoria
 {
     public partial class MainPage : ContentPage
     {
+        private Mapsui.Map _map;
+        private Location _userPosition;
 
         public MainPage()
         {
@@ -17,15 +19,17 @@ namespace Trevoria
 
         private async Task LoadMap()
         {
-            var userLocation = await GetUserLocation();
-            var map = new Mapsui.Map();
+            _userPosition = await GetUserLocation();
+            _map = new Mapsui.Map();
 
             var osmLayer = OpenStreetMap.CreateTileLayer();
-            map.Layers.Add(osmLayer);
-            mapControl.Map = map;
 
-            CenterMapOnLocation(map, userLocation.Latitude, userLocation.Longitude);
+            UpdateCurrentUserLocation();
 
+            _map.Layers.Add(osmLayer);
+
+            CenterMapOnLocation(_map, _userPosition.Latitude, _userPosition.Longitude);
+            mapView.Map = _map;
         }
 
         private void CenterMapOnLocation(Mapsui.Map map, double latitude, double longitude)
@@ -34,7 +38,7 @@ namespace Trevoria
 
             var sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfUser.Y, centerOfUser.X).ToMPoint();
 
-            map.Navigator.CenterOnAndZoomTo(sphericalMercatorCoordinate, map.Navigator.Resolutions[15]);
+            map.Navigator.CenterOnAndZoomTo(sphericalMercatorCoordinate, map.Navigator.Resolutions[15], 750);
         }
 
         public async Task<Location?> GetUserLocation()
@@ -53,6 +57,26 @@ namespace Trevoria
                 Console.WriteLine($"Ошибка: {ex.Message}");
                 return null;
             }
+        }
+
+        private void CenterUserLocation_Clicked(object sender, EventArgs e)
+        {
+            UpdateCurrentUserLocation();
+            CenterMapOnLocation(_map, _userPosition.Latitude, _userPosition.Longitude);
+        }
+
+        private void UpdateCurrentUserLocation()
+        {
+            var userLocation = new Mapsui.UI.Maui.Position(_userPosition.Latitude, _userPosition.Longitude);
+            mapView.MyLocationEnabled = true;
+            mapView.MyLocationLayer.UpdateMyLocation(userLocation);
+        }
+
+        private void ChangeDirectionButton_Clicked(object sender, EventArgs e)
+        {
+            var temp = LocationFromEntry.Text;
+            LocationFromEntry.Text = LocationToEntry.Text;
+            LocationToEntry.Text = temp;
         }
     }
 }
