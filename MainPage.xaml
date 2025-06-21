@@ -4,8 +4,9 @@
              xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
              xmlns:skia="clr-namespace:SkiaSharp;assembly=SkiaSharp"
              xmlns:wits="http://what.is.this.sheet/schemas/controls"
-             x:Class="Trevoria.MainPage">
-
+             xmlns:views="clr-namespace:Trevoria.Views"
+             x:Class="Trevoria.MainPage"
+             xmlns:model="clr-namespace:Trevoria.Model">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -27,36 +28,23 @@
 
         <Button x:Name="CenterUserLocation" Grid.Column="5" Text="1" Margin="10" HeightRequest="10"
                 Clicked="CenterUserLocation_Clicked"/>
-
+        
         <wits:BottomSheet x:Name="MainBottomSheet" Grid.Row="1" Grid.ColumnSpan="5" Margin="-8">
             <wits:BottomSheet.SheetStops>
-                <wits:SheetStop Measurement="Fixed" Value="20" />
+                <wits:SheetStop Measurement="Fixed"  Value="20" />
                 <wits:SheetStop Measurement="Percentage" Value=".25" />
             </wits:BottomSheet.SheetStops>
             <StackLayout Padding="8" Spacing="8">
-                <ScrollView Orientation="Horizontal">
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
                     <StackLayout Orientation="Horizontal">
-                        <Button Text="Маршрут" WidthRequest="120" Margin="5"/>
-                        <Button Text="Избранное" WidthRequest="120" Margin="5"/>
-                        <Button Text="История" WidthRequest="120" Margin="5"/>
-                        <Button Text="Профиль" WidthRequest="120" Margin="5"/>
+                        <Button x:Name="RouteViewButton" Text="Маршрут" WidthRequest="100" Margin="5" Clicked="RouteViewButton_Clicked"/>
+                        <Button x:Name="FavouritesViewButton" Text="Избранное" WidthRequest="100" Margin="5" Clicked="FavouritesViewButton_Clicked"/>
+                        <Button x:Name="HistoryViewButton" Text="История" WidthRequest="100" Margin="5" Clicked="HistoryViewButton_Clicked"/>
+                        <Button x:Name="ProfileViewButton" Text="Профиль" WidthRequest="100" Margin="5" Clicked="ProfileViewButton_Clicked"/>
                     </StackLayout>
                 </ScrollView>
-                <AbsoluteLayout>
-                    <Label Text="Выбор" TextColor="DarkGray" FontSize="20" AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional"/>
-                </AbsoluteLayout>
-                <Frame CornerRadius="20" Margin="10" HeightRequest="50" BackgroundColor="LightGray" Grid.ColumnSpan="3" BorderColor="Transparent">
-                    <Entry x:Name="LocationFromEntry" HeightRequest="50" Placeholder="Откуда" HorizontalTextAlignment="Center" PlaceholderColor="DarkGray" TextColor="Black"/>
-                </Frame>
-                <AbsoluteLayout>
-                    <Button x:Name="ChangeDirectionButton" Text="↕️" TextColor="DarkGray" FontSize="20"  AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional" Clicked="ChangeDirectionButton_Clicked"/>
-                </AbsoluteLayout>
-                <Frame CornerRadius="20" Margin="10" HeightRequest="50" BackgroundColor="LightGray" Grid.ColumnSpan="3" BorderColor="Transparent">
-                    <Entry x:Name="LocationToEntry" HeightRequest="50" Placeholder="Куда" HorizontalTextAlignment="Center" PlaceholderColor="DarkGray" TextColor="Black"/>
-                </Frame>
-                <AbsoluteLayout>
-                    <Label Text="Предложенные варианты" TextColor="DarkGray" FontSize="20" AbsoluteLayout.LayoutBounds="0.5, 0" AbsoluteLayout.LayoutFlags="XProportional"/>
-                </AbsoluteLayout>
+
+                <ContentView x:Name="MainContentView"/>
 
             </StackLayout>
         </wits:BottomSheet>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Trevoria.Views.RouteContentView"
+             xmlns:model="clr-namespace:Trevoria.Model">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <x:Array x:Key="place" Type="{x:Type model:TouristicPlacesModel}">
+                <model:TouristicPlacesModel name="музей"/>
+                <model:TouristicPlacesModel name="театр"/>
+                <model:TouristicPlacesModel name="парк"/>
+                <model:TouristicPlacesModel name="озеро"/>
+            </x:Array>
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <VerticalStackLayout>
+        <AbsoluteLayout>
+            <Label Text="Выбор"
+               TextColor="DarkGray" 
+               FontSize="20" 
+               AbsoluteLayout.LayoutBounds="0.5, 0" 
+               AbsoluteLayout.LayoutFlags="XProportional"/>
+        </AbsoluteLayout>
+        <Frame CornerRadius="20" 
+           Margin="10" 
+           HeightRequest="50" 
+           BackgroundColor="LightGray" 
+           Grid.ColumnSpan="3" 
+           BorderColor="Transparent">
+            <Entry 
+            x:Name="LocationFromEntry" 
+            HeightRequest="50" 
+            Placeholder="Откуда" HorizontalTextAlignment="Center" 
+            PlaceholderColor="DarkGray" TextColor="Black"/>
+        </Frame>
+        <AbsoluteLayout>
+            <Button 
+                x:Name="ChangeDirectionButton" 
+                Text="↕️" 
+                TextColor="DarkGray" 
+                FontSize="20"  
+                AbsoluteLayout.LayoutBounds="0.5, 0" 
+                AbsoluteLayout.LayoutFlags="XProportional"
+                Clicked="ChangeDirectionButton_Clicked"/>
+        </AbsoluteLayout>
+        <Frame 
+        CornerRadius="20" 
+        Margin="10" 
+        HeightRequest="50" 
+        BackgroundColor="LightGray" 
+        Grid.ColumnSpan="3" 
+        BorderColor="Transparent">
+            <Entry 
+            x:Name="LocationToEntry" 
+            HeightRequest="50" 
+            Placeholder="Куда" 
+            HorizontalTextAlignment="Center" 
+            PlaceholderColor="DarkGray" 
+            TextColor="Black"/>
+        </Frame>
+
+        <AbsoluteLayout>
+            <Label 
+                Text="Выберите тип путешествия" 
+                TextColor="DarkGray" 
+                FontSize="20" 
+                AbsoluteLayout.LayoutBounds="0.5, 0" 
+                AbsoluteLayout.LayoutFlags="XProportional"/>
+        </AbsoluteLayout>
+        <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="15">
+            <RadioButton Value="1" Content="🖼️" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
+            <RadioButton Value="2" Content="🎭" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
+            <RadioButton Value="3" Content="🍕" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
+            <RadioButton Value="4" Content="🏛️" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
+        </StackLayout>
+
+        <AbsoluteLayout>
+            <Label 
+            Text="Предложенные варианты" 
+            TextColor="DarkGray" 
+            FontSize="20" 
+            AbsoluteLayout.LayoutBounds="0.5, 0" 
+            AbsoluteLayout.LayoutFlags="XProportional"/>
+        </AbsoluteLayout>
+        <AbsoluteLayout>
+            <Label 
+            Text="Пользовательский варианты" 
+            TextColor="DarkGray"
+            FontSize="20"
+            AbsoluteLayout.LayoutBounds="0.5, 0"
+            AbsoluteLayout.LayoutFlags="XProportional"/>
+            <ListView Background="CadetBlue"/>
+        </AbsoluteLayout>        
+    </VerticalStackLayout>
+</ContentView>
