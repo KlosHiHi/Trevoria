@@ -18,35 +18,70 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-
-        <mapsui:MapView x:Name="mapView" Grid.RowSpan="2" Grid.ColumnSpan="5" IsMyLocationButtonVisible="False" IsNorthingButtonVisible="False" IsZoomButtonVisible="False"/>
-
-        <Frame CornerRadius="20" Margin="10" HeightRequest="50" BackgroundColor="White" Grid.ColumnSpan="3" BorderColor="Transparent">
-            <Entry Grid.Row="0" HeightRequest="50" HorizontalOptions="Fill" 
-                   Placeholder="Введите местоположение..." PlaceholderColor="DarkGray" TextColor="Black"/>
-        </Frame>
-
-        <Button x:Name="CenterUserLocation" Grid.Column="5" Text="1" Margin="10" HeightRequest="10"
-                Clicked="CenterUserLocation_Clicked"/>
         
-        <wits:BottomSheet x:Name="MainBottomSheet" Grid.Row="1" Grid.ColumnSpan="5" Margin="-8">
-            <wits:BottomSheet.SheetStops>
-                <wits:SheetStop Measurement="Fixed"  Value="20" />
-                <wits:SheetStop Measurement="Percentage" Value=".25" />
+        <mapsui:MapView x:Name="mapView" 
+                        Grid.RowSpan="2"
+                        Grid.ColumnSpan="5" 
+                        IsMyLocationButtonVisible="False" 
+                        IsNorthingButtonVisible="False" 
+                        IsZoomButtonVisible="False"/>
+
+        <ImageButton x:Name="CenterUserLocation" Grid.Column="5" Source="navigation_arrow.png"
+                Clicked="CenterUserLocation_Clicked"
+                Style="{StaticResource UserLocationButton}" Background="LawnGreen" Margin="0, 0, 15, 0"/>
+
+        <wits:BottomSheet x:Name="MainBottomSheet" Grid.Row="1" Grid.ColumnSpan="5" Margin="-5">
+            <wits:BottomSheet.SheetStops >
+                <wits:SheetStop Measurement="Percentage" Value=".25"/>
+                <wits:SheetStop Measurement="Fixed" Value="20"/>
             </wits:BottomSheet.SheetStops>
-            <StackLayout Padding="8" Spacing="8">
+            <StackLayout Padding="8" Spacing="8" Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" >
                 <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
                     <StackLayout Orientation="Horizontal">
-                        <Button x:Name="RouteViewButton" Text="Маршрут" WidthRequest="100" Margin="5" Clicked="RouteViewButton_Clicked"/>
-                        <Button x:Name="FavouritesViewButton" Text="Избранное" WidthRequest="100" Margin="5" Clicked="FavouritesViewButton_Clicked"/>
-                        <Button x:Name="HistoryViewButton" Text="История" WidthRequest="100" Margin="5" Clicked="HistoryViewButton_Clicked"/>
-                        <Button x:Name="ProfileViewButton" Text="Профиль" WidthRequest="100" Margin="5" Clicked="ProfileViewButton_Clicked"/>
+                        <Button x:Name="RouteViewButton" Text="Маршрут" Clicked="RouteViewButton_Clicked"/>
+                        <Button x:Name="FavouritesViewButton" Text="Избранное" Clicked="FavouritesViewButton_Clicked"/>
+                        <Button x:Name="HistoryViewButton" Text="История"  Clicked="HistoryViewButton_Clicked"/>
+                        <Button x:Name="ProfileViewButton" Text="Профиль" Clicked="ProfileViewButton_Clicked"/>
                     </StackLayout>
                 </ScrollView>
 
-                <ContentView x:Name="MainContentView"/>
+                <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never">
+                    <StackLayout Orientation="Vertical">
 
+                        <ContentView x:Name="MainContentView"/>
+
+                    </StackLayout>
+                </ScrollView>
             </StackLayout>
         </wits:BottomSheet>
+
+        <Button Clicked="Button_Clicked"/>
+
+        <ContentView Grid.ColumnSpan="3" Margin="10">
+            
+            <Frame x:Name="LocationFrame" HasShadow="True"
+                   Padding="0"
+                   VerticalOptions="Start"
+                   HorizontalOptions="FillAndExpand"
+                   Style="{StaticResource MainFrame}">
+                <VerticalStackLayout>
+                    <Entry x:Name="SetLocationEntry"
+                           Margin="10, 0, 0, 0"
+                           Placeholder="Введите местоположение..."
+                           TextChanged="SetLocationEntry_TextChanged"/>
+                    <ListView x:Name="SuggestionsList"
+                            IsVisible="False"
+                            SelectionMode="Single"
+                            ItemSelected="SuggestionsList_ItemSelected"
+                            RowHeight="44">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextCell Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </VerticalStackLayout>
+            </Frame>
+        </ContentView>
     </Grid>
 </ContentPage>

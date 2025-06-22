@@ -4,7 +4,7 @@
              x:Class="Trevoria.Views.FavouritesContentView">
     <VerticalStackLayout>
         <Label 
-            Text="Избранное"
+            Text="Вы ещё не сохранили ни одного маршрута"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
     </VerticalStackLayout>

@@ -3,93 +3,96 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Trevoria.Views.RouteContentView"
              xmlns:model="clr-namespace:Trevoria.Model">
-    <ContentView.Resources>
-        <ResourceDictionary>
-            <x:Array x:Key="place" Type="{x:Type model:TouristicPlacesModel}">
-                <model:TouristicPlacesModel name="музей"/>
-                <model:TouristicPlacesModel name="театр"/>
-                <model:TouristicPlacesModel name="парк"/>
-                <model:TouristicPlacesModel name="озеро"/>
-            </x:Array>
-        </ResourceDictionary>
-    </ContentView.Resources>
     <VerticalStackLayout>
         <AbsoluteLayout>
-            <Label Text="Выбор"
-               TextColor="DarkGray" 
-               FontSize="20" 
+            <Label Text="Позиция"
                AbsoluteLayout.LayoutBounds="0.5, 0" 
                AbsoluteLayout.LayoutFlags="XProportional"/>
         </AbsoluteLayout>
-        <Frame CornerRadius="20" 
-           Margin="10" 
-           HeightRequest="50" 
-           BackgroundColor="LightGray" 
-           Grid.ColumnSpan="3" 
-           BorderColor="Transparent">
-            <Entry 
-            x:Name="LocationFromEntry" 
-            HeightRequest="50" 
-            Placeholder="Откуда" HorizontalTextAlignment="Center" 
+        
+        <Frame Grid.ColumnSpan="3" >
+            <Entry x:Name="LocationFromEntry"
+                   Placeholder="Откуда"
+                   HorizontalTextAlignment="Center" 
             PlaceholderColor="DarkGray" TextColor="Black"/>
         </Frame>
+        
         <AbsoluteLayout>
-            <Button 
-                x:Name="ChangeDirectionButton" 
-                Text="↕️" 
-                TextColor="DarkGray" 
-                FontSize="20"  
-                AbsoluteLayout.LayoutBounds="0.5, 0" 
-                AbsoluteLayout.LayoutFlags="XProportional"
-                Clicked="ChangeDirectionButton_Clicked"/>
+            <ImageButton x:Name="ChangeDirectionButton"
+                         Source="arrows_down_up.png"
+                    AbsoluteLayout.LayoutBounds="0.5, 0"
+                    AbsoluteLayout.LayoutFlags="XProportional"
+                    Clicked="ChangeDirectionButton_Clicked"/>
         </AbsoluteLayout>
-        <Frame 
-        CornerRadius="20" 
-        Margin="10" 
-        HeightRequest="50" 
-        BackgroundColor="LightGray" 
-        Grid.ColumnSpan="3" 
-        BorderColor="Transparent">
-            <Entry 
-            x:Name="LocationToEntry" 
-            HeightRequest="50" 
-            Placeholder="Куда" 
-            HorizontalTextAlignment="Center" 
-            PlaceholderColor="DarkGray" 
-            TextColor="Black"/>
+        
+        <Frame Grid.ColumnSpan="3">
+                <Entry x:Name="LocationToEntry"
+                    Placeholder="Куда"
+                    HorizontalTextAlignment="Center"/>
         </Frame>
 
         <AbsoluteLayout>
-            <Label 
-                Text="Выберите тип путешествия" 
-                TextColor="DarkGray" 
-                FontSize="20" 
-                AbsoluteLayout.LayoutBounds="0.5, 0" 
-                AbsoluteLayout.LayoutFlags="XProportional"/>
+            <Label Text="Выберите тип путешествия"
+                   AbsoluteLayout.LayoutBounds="0.5, 0"
+                   AbsoluteLayout.LayoutFlags="XProportional"/>
         </AbsoluteLayout>
         <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="15">
-            <RadioButton Value="1" Content="🖼️" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
-            <RadioButton Value="2" Content="🎭" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
-            <RadioButton Value="3" Content="🍕" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
-            <RadioButton Value="4" Content="🏛️" FontSize="30" CheckedChanged="RadioButton_CheckedChanged"/>
+
+            <Image Source="empty.png"/>
+            <RadioButton Value="1" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+
+            <Image Source="tree.png"/>
+            <RadioButton Value="2" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+
+            <Image Source="paint_brush_household.png"/>
+            <RadioButton Content="" Value="3" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+
+            <Image Source="hamburger.png"/>
+            <RadioButton Value="4" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+
+            <Image Source="castle_turret.png"/>
+            <RadioButton Value="5" CheckedChanged="RouteRadioButton_CheckedChanged"/>            
         </StackLayout>
 
         <AbsoluteLayout>
-            <Label 
-            Text="Предложенные варианты" 
-            TextColor="DarkGray" 
-            FontSize="20" 
-            AbsoluteLayout.LayoutBounds="0.5, 0" 
-            AbsoluteLayout.LayoutFlags="XProportional"/>
+            <Label Text="Выберите тип перемещения"
+                   AbsoluteLayout.LayoutBounds="0.5, 0"
+                   AbsoluteLayout.LayoutFlags="XProportional"/>
         </AbsoluteLayout>
+        <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="15">
+            
+            <Image Source="person_simple_hike.png"/>
+            <RadioButton Value="1" CheckedChanged="MovementRadioButton_CheckedChanged"/>
+
+            <Image Source="person_simple_bike.png"/>
+            <RadioButton Value="2" CheckedChanged="MovementRadioButton_CheckedChanged"/>
+
+            <Image Source="car_profile.png"/>
+            <RadioButton Value="3" CheckedChanged="MovementRadioButton_CheckedChanged"/>            
+        </StackLayout>
+        <AbsoluteLayout Margin="5">
+            <Button Text="Сгенерировать маршрут"
+                    HeightRequest="50"
+                    VerticalOptions="Center"
+                    AbsoluteLayout.LayoutBounds="0.5, 0"
+                    AbsoluteLayout.LayoutFlags="XProportional"
+                    Background="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                    TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}"
+                    Style="{StaticResource UserLocationButton}"
+                    Clicked="Button_Clicked"/>
+        </AbsoluteLayout>
+
+        <AbsoluteLayout>
+            <Label Text="Предложенные варианты"
+                   AbsoluteLayout.LayoutBounds="0.5, 0"
+                   AbsoluteLayout.LayoutFlags="XProportional"/>
+        </AbsoluteLayout>
+
         <AbsoluteLayout>
             <Label 
-            Text="Пользовательский варианты" 
-            TextColor="DarkGray"
-            FontSize="20"
-            AbsoluteLayout.LayoutBounds="0.5, 0"
-            AbsoluteLayout.LayoutFlags="XProportional"/>
-            <ListView Background="CadetBlue"/>
-        </AbsoluteLayout>        
+                Text="Пользовательский варианты"
+                AbsoluteLayout.LayoutBounds="0.5, 0"
+                AbsoluteLayout.LayoutFlags="XProportional"/>
+        </AbsoluteLayout>
     </VerticalStackLayout>
 </ContentView>

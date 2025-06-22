@@ -2,10 +2,44 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Trevoria.Views.HistoryContentView">
-    <VerticalStackLayout>
-        <Label 
-            Text="история"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+
+    <ScrollView Orientation="Horizontal">
+        <StackLayout>
+            <AbsoluteLayout Margin="3">
+                <Image Source="example_park.jpeg" HeightRequest="150" Aspect="AspectFit">
+                    <Image.Clip>
+                        <EllipseGeometry RadiusX="75" RadiusY="75" Center="75, 75"/>
+                    </Image.Clip>
+                </Image>
+                <Label Text="Генерация №5" AbsoluteLayout.LayoutBounds="175, 0"/>
+                <Label Text="тип: природа" AbsoluteLayout.LayoutBounds="185, 40"/>
+                <Label Text="маршрут: пеший" AbsoluteLayout.LayoutBounds="185, 60"/>
+                <Label Text="Сегодня в 13:00" AbsoluteLayout.LayoutBounds="175, 120"/>
+            </AbsoluteLayout>
+            <Line Stroke="DarkGray" X2="400"/>
+            <AbsoluteLayout Margin="3">
+                <Image Source="example_museum.jpg" HeightRequest="150" Aspect="AspectFit">
+                    <Image.Clip>
+                        <EllipseGeometry RadiusX="75" RadiusY="75" Center="75, 75"/>
+                    </Image.Clip>
+                </Image>
+                <Label Text="Генерация №4" AbsoluteLayout.LayoutBounds="175, 0"/>
+                <Label Text="тип: природа" AbsoluteLayout.LayoutBounds="185, 40"/>
+                <Label Text="маршрут: пеший" AbsoluteLayout.LayoutBounds="185, 60"/>
+                <Label Text="Вчера в 20:00" AbsoluteLayout.LayoutBounds="175, 120"/>
+            </AbsoluteLayout>
+            <Line Stroke="DarkGray" X2="400"/>
+            <AbsoluteLayout Margin="3">
+                <Image Source="example_rest.jpeg" HeightRequest="150" Aspect="AspectFit">
+                    <Image.Clip>
+                        <EllipseGeometry RadiusX="75" RadiusY="75" Center="75, 75"/>
+                    </Image.Clip>
+                </Image>
+                <Label Text="Генерация №3" AbsoluteLayout.LayoutBounds="175, 0"/>
+                <Label Text="тип: природа" AbsoluteLayout.LayoutBounds="185, 40"/>
+                <Label Text="маршрут: велосипед" AbsoluteLayout.LayoutBounds="185, 60"/>
+                <Label Text="15 июня в 15:30" AbsoluteLayout.LayoutBounds="175, 120"/>
+            </AbsoluteLayout>
+        </StackLayout>
+    </ScrollView>
 </ContentView>

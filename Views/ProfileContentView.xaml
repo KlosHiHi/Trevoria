@@ -2,10 +2,80 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Trevoria.Views.ProfileContentView">
-    <VerticalStackLayout>
-        <Label 
-            Text="Профиль"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+              RowSpacing="20"
+              Padding="20">
+
+            <Frame Grid.Row="0"
+                   Padding="0"
+                   BackgroundColor="Transparent"
+                   HorizontalOptions="Center"
+                   CornerRadius="100"
+                   HeightRequest="120"
+                   WidthRequest="120">
+                <Image Aspect="AspectFill"
+                       HeightRequest="120"
+                       WidthRequest="120"
+                       Source="{Binding UserAvatar}"
+                       x:Name="profileImage">
+                    <Image.Clip>
+                        <EllipseGeometry Center="60,60"
+                                        RadiusX="60"
+                                        RadiusY="60"/>
+                    </Image.Clip>
+                </Image>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnChangePhotoTapped"/>
+                </Frame.GestureRecognizers>
+            </Frame>
+            
+            <StackLayout Grid.Row="1" Spacing="5">
+                <Label Text="{Binding UserName}"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource PrimaryDarkText}"/>
+
+                <Label Text="{Binding UserTitle}"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource PrimaryDarkText}"/>
+
+                <Label Text="{Binding UserBio}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0"
+                       TextColor="{DynamicResource PrimaryDarkText}"/>
+            </StackLayout>
+
+            <FlexLayout Grid.Row="2"
+                       BindableLayout.ItemsSource="{Binding Stats}"
+                       Wrap="Wrap"
+                       JustifyContent="SpaceEvenly">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="15,10"
+                               CornerRadius="10"
+                               BackgroundColor="{DynamicResource CardBackgroundColor}"
+                               Margin="5">
+                            <StackLayout Orientation="Vertical"
+                                         HorizontalOptions="Center"
+                                         Spacing="5">
+                                <Label Text="{Binding Value}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="{DynamicResource PrimaryColor}"/>
+                                <Label Text="{Binding Name}"
+                                       FontSize="12"
+                                       HorizontalOptions="Center"
+                                       TextColor="{DynamicResource TextSecondaryColor}"/>
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+        </Grid>
+    </ScrollView>
 </ContentView>

@@ -37,7 +37,7 @@ public static class MapsuiUtils
                 PenStrokeCap = PenStrokeCap.Round,
                 StrokeJoin = StrokeJoin.Round,
                 PenStyle = penStyle,
-                
+
                 Width = width
             },
             MinVisible = minVisible,

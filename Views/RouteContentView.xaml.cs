@@ -3,20 +3,41 @@ namespace Trevoria.Views;
 public partial class RouteContentView : ContentView
 {
     public string RouteType;
-    private Dictionary<int, string> _routes;
+    public string MovementType;
+    public string PlaceTo;
+    public string PlaceFrom;
 
+    private Dictionary<int, string> _routes;
+    private Dictionary<int, string> _movements;
+
+    public event Action TypeChanged;
 
     public RouteContentView()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
 
-        _routes = new() 
+        _routes = new()
         {
-            {1, "nature"},
-            {2, "art"},
-            {3, "food"},
-            {4, "history"},
+            {1, "empty"},
+            {2, "nature"},
+            {3, "art"},
+            {4, "food"},
+            {5, "history"},
         };
+
+        _movements = new()
+        {
+            {1, "foot"},
+            {2, "bike"},
+            {3, "car"},
+        };
+    }
+
+    private void Button_Clicked(object sender, EventArgs e)
+    {
+        PlaceTo = LocationToEntry.Text;
+        PlaceFrom = LocationFromEntry.Text;
+        TypeChanged?.Invoke();
     }
 
     private void ChangeDirectionButton_Clicked(object sender, EventArgs e)
@@ -26,9 +47,15 @@ public partial class RouteContentView : ContentView
         LocationToEntry.Text = temp;
     }
 
-    private void RadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
+    private void RouteRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
     {
         RadioButton button = sender as RadioButton;
         RouteType = _routes[Convert.ToInt32(button.Value)];
+    }
+
+    private void MovementRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        RadioButton button = sender as RadioButton;
+        MovementType = _movements[Convert.ToInt32(button.Value)];
     }
 }
