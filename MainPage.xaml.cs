@@ -1,10 +1,15 @@
-﻿using Mapsui;
+﻿using HarfBuzzSharp;
+using Mapsui;
 using Mapsui.Extensions;
+using Mapsui.Features;
+using Mapsui.Layers;
 using Mapsui.Nts.Extensions;
 using Mapsui.Projections;
+using Mapsui.Providers;
 using Mapsui.Styles;
 using Mapsui.Tiling;
 using Mapsui.UI.Maui;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -17,14 +22,14 @@ namespace Trevoria
 {
     public partial class MainPage : ContentPage, INotifyPropertyChanged
     {
+        private Microsoft.Maui.Graphics.Color _color = (Microsoft.Maui.Graphics.Color)Application.Current.Resources["Primary"];
+
         private Mapsui.Map _map;
 
         private Views.RouteContentView _createRoutePage = new();
-
-        private Microsoft.Maui.Devices.Sensors.Location _userPosition;
-
-        private Coordinate _whereFromPosition;
-        private Coordinate _whereToPosition;
+        private Microsoft.Maui.Devices.Sensors.Location _userPosition = new();
+        private Microsoft.Maui.Devices.Sensors.Location _whereFromPosition = new();
+        private Microsoft.Maui.Devices.Sensors.Location _whereToPosition = new();
 
         private string _movementType;
         private string _routeType;
@@ -50,7 +55,6 @@ namespace Trevoria
                 ;
             }
         }
-
         public string MovementType
         {
             get => _movementType;
@@ -64,7 +68,6 @@ namespace Trevoria
 
             }
         }
-
         public string PointTo
         {
             get => _pointTo;
@@ -77,7 +80,6 @@ namespace Trevoria
                 }
             }
         }
-
         public string PointFrom
         {
             get => _pointFrom;
@@ -90,9 +92,46 @@ namespace Trevoria
                 }
             }
         }
-
         private List<Coordinate> _lineCoordinates;
         private Dictionary<string, Pin> _mapPinsDictionary = new();
+
+        private Dictionary<string, int> _natureDictionary = new()
+        {
+            { "park", 4 },
+            { "zoo", 5 },
+            { "theme_park", 5 },
+            { "viewpoint", 4 },
+            { "picnic_site", 3 },
+            { "camp_site", 5 },
+            { "nature_reserve", 4 },
+            { "artwork", 2 }
+        };
+
+        private Dictionary<string, int> _artDictionary = new()
+        {
+            { "museum", 2 },
+            { "gallery", 5 },
+            { "artwork", 2 },
+            { "attraction", 5 }
+        };
+
+        private Dictionary<string, int> _foodDictionary = new()
+        {
+            { "restaurant", 5 },
+            { "cafe", 5 },
+            { "bar", 5 },
+            { "pub", 5 },
+            { "food_court", 2 }
+        };
+
+        private Dictionary<string, int> _historyDictionary = new()
+        {
+            { "museum", 5 },
+            { "monument", 5 },
+            { "memorial", 5 },
+            { "castle", 5 },
+        };
+
 
         public MainPage()
         {
@@ -111,19 +150,58 @@ namespace Trevoria
             PointFrom = _createRoutePage.PlaceFrom;
             PointTo = _createRoutePage.PlaceTo;
 
-            //var query = PointTo?.ToLower() ?? "";
-            //var pointTo = LocalityTown.Find(t => t.name.ToLower().Contains(query));
-            //_whereToPosition.X = pointTo.lat;
-            //_whereToPosition.Y = pointTo.lon;
+            var coords = GetCityCoordinatesByName(PointFrom);
+            if (coords != null)
+            {
+                _whereFromPosition.Latitude = coords.Value.lat;
+                _whereFromPosition.Longitude = coords.Value.lon;
+            }
+            coords = GetCityCoordinatesByName(PointTo);
+
+            if (coords != null)
+            {
+                _whereToPosition.Latitude = coords.Value.lat;
+                _whereToPosition.Longitude = coords.Value.lon;
+            }
+
+            mapView.Pins.Clear();
+
+            Dictionary<string, int> tourismTypes = RouteType switch
+            {
+                "nature" => _natureDictionary,
+                "art" => _artDictionary,
+                "food" => _foodDictionary,
+                "history" => _historyDictionary,
+            };
+
+            BuildTourismRouteAsync(
+                start: (_whereFromPosition.Latitude, _whereFromPosition.Longitude),
+                end: (_whereToPosition.Latitude, _whereToPosition.Longitude),
+                MovementType,
+                tourismTypes: tourismTypes
+            );
         }
 
         private async void InitAsync()
         {
             await LoadMap();
             LocalityTown = await GetArkhangelskCitiesFromOsmAsync();
-            TouristicPlaces = await GetArkhangelskTourismPlacesFromOsmAsync();
+            //TouristicPlaces = await GetArkhangelskTourismPlacesFromOsmAsync();
         }
 
+        private (double lat, double lon)? GetCityCoordinatesByName(string cityName)
+        {
+            if (string.IsNullOrWhiteSpace(cityName) || LocalityTown == null)
+                return null;
+
+            var city = LocalityTown
+                .FirstOrDefault(c => string.Equals(c.Name, cityName, StringComparison.OrdinalIgnoreCase));
+
+            if (city != null)
+                return (city.Lat, city.Lon);
+
+            return null;
+        }
 
         private async Task LoadMap()
         {
@@ -134,8 +212,6 @@ namespace Trevoria
             UpdateCurrentUserLocation(_userPosition.Latitude, _userPosition.Longitude);
 
             CenterMapOnLocation(_map, _userPosition.Latitude, _userPosition.Longitude);
-
-            
 
             mapView.Map = _map;
         }
@@ -199,6 +275,168 @@ namespace Trevoria
             var routeLayer = MapsuiUtils.CreateLinestringLayer(lineString, "RouteLayer", [lineStyle]);
             _map.Layers.Add(routeLayer);
             mapView.Map = _map;
+        }
+
+
+        private async Task BuildTourismRouteAsync(
+            (double lat, double lon) start,
+            (double lat, double lon) end,
+            string movementType,
+            Dictionary<string, int> tourismTypes)
+        {
+            double width;
+            switch (movementType)
+            {
+                case "foot": width = 0.025; break;
+                case "bike": width = 0.15; break;
+                case "car": width = 0.6; break;
+                default: width = 0.1; break;
+            }
+
+            double dx = end.lon - start.lon;
+            double dy = end.lat - start.lat;
+            double length = Math.Sqrt(dx * dx + dy * dy);
+            if (length == 0) return;
+
+            double perpX = -dy / length;
+            double perpY = dx / length;
+
+            double halfWidth = width / 2.0;
+            var p1 = (lat: start.lat + perpY * halfWidth, lon: start.lon + perpX * halfWidth);
+            var p2 = (lat: start.lat - perpY * halfWidth, lon: start.lon - perpX * halfWidth);
+            var p3 = (lat: end.lat - perpY * halfWidth, lon: end.lon - perpX * halfWidth);
+            var p4 = (lat: end.lat + perpY * halfWidth, lon: end.lon + perpX * halfWidth);
+
+            double minLat = new[] { p1.lat, p2.lat, p3.lat, p4.lat }.Min();
+            double maxLat = new[] { p1.lat, p2.lat, p3.lat, p4.lat }.Max();
+            double minLon = new[] { p1.lon, p2.lon, p3.lon, p4.lon }.Min();
+            double maxLon = new[] { p1.lon, p2.lon, p3.lon, p4.lon }.Max();
+
+            string bbox = $"{minLat},{minLon},{maxLat},{maxLon}";
+            // Добавляем запрос по amenity для food
+            string query = $@"
+[out:json][timeout:25];
+(
+  node[""tourism""]({bbox});
+  way[""tourism""]({bbox});
+  relation[""tourism""]({bbox});
+  node[""amenity""~""restaurant|cafe|bar|pub|food_court""]({bbox});
+  way[""amenity""~""restaurant|cafe|bar|pub|food_court""]({bbox});
+  relation[""amenity""~""restaurant|cafe|bar|pub|food_court""]({bbox});
+);
+out center;
+";
+
+            var places = new List<OsmTourismPlaceModel>();
+            using (var client = new HttpClient())
+            {
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("data", query)
+                });
+                var response = await client.PostAsync("https://overpass-api.de/api/interpreter", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("elements", out var elements))
+                {
+                    foreach (var el in elements.EnumerateArray())
+                    {
+                        string name = null;
+                        double lat = 0, lon = 0;
+                        string tourismType = null;
+                        string amenityType = null;
+
+                        if (el.TryGetProperty("tags", out var tags))
+                        {
+                            if (tags.TryGetProperty("name", out var nameProp))
+                                name = nameProp.GetString();
+                            if (tags.TryGetProperty("tourism", out var tourismProp))
+                                tourismType = tourismProp.GetString();
+                            if (tags.TryGetProperty("amenity", out var amenityProp))
+                                amenityType = amenityProp.GetString();
+                        }
+
+                        if (el.TryGetProperty("lat", out var latProp) && el.TryGetProperty("lon", out var lonProp))
+                        {
+                            lat = latProp.GetDouble();
+                            lon = lonProp.GetDouble();
+                        }
+                        else if (el.TryGetProperty("center", out var center))
+                        {
+                            lat = center.GetProperty("lat").GetDouble();
+                            lon = center.GetProperty("lon").GetDouble();
+                        }
+
+                        // Для food используем amenityType, для остальных — tourismType
+                        if (!string.IsNullOrEmpty(name) && (!string.IsNullOrEmpty(tourismType) || !string.IsNullOrEmpty(amenityType)))
+                            places.Add(new OsmTourismPlaceModel
+                            {
+                                Name = name,
+                                Lat = lat,
+                                Lon = lon,
+                                TourismType = tourismType ?? amenityType // Для food будет amenityType
+                            });
+                    }
+                }
+            }
+
+            var allPoints = new List<OsmTourismPlaceModel>();
+            var rnd = new Random();
+            foreach (var kv in tourismTypes)
+            {
+                var type = kv.Key;
+                var count = kv.Value;
+                var points = places
+                    .Where(p => p.TourismType?.Equals(type, StringComparison.OrdinalIgnoreCase) == true)
+                    .OrderBy(x => rnd.Next())
+                    .Take(count)
+                    .ToList();
+                allPoints.AddRange(points);
+            }
+
+            var routePoints = new List<Coordinate>
+            {
+                new Coordinate(start.lon, start.lat)
+            };
+
+            var remaining = new List<OsmTourismPlaceModel>(allPoints);
+            var currentLat = start.lat;
+            var currentLon = start.lon;
+
+            while (remaining.Count > 0)
+            {
+                var next = remaining.OrderBy(p => Distance(currentLat, currentLon, p.Lat, p.Lon)).First();
+                routePoints.Add(new Coordinate(next.Lon, next.Lat));
+                currentLat = next.Lat;
+                currentLon = next.Lon;
+                AddPin(next.Lat, next.Lon, next.Name, Colors.DarkGreen);
+                remaining.Remove(next);
+            }
+
+            routePoints.Add(new Coordinate(end.lon, end.lat));
+            DrawRouteByWaypoints(routePoints);
+        }
+
+        private double DistanceToSegment(double px, double py, double x1, double y1, double x2, double y2)
+        {
+            double dx = x2 - x1;
+            double dy = y2 - y1;
+            if (dx == 0 && dy == 0)
+                return Distance(px, py, x1, y1);
+            double t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy);
+            t = Math.Max(0, Math.Min(1, t));
+            double projX = x1 + t * dx;
+            double projY = y1 + t * dy;
+            return Distance(px, py, projX, projY);
+        }
+
+        private double Distance(double lat1, double lon1, double lat2, double lon2)
+        {
+            double dLat = lat1 - lat2;
+            double dLon = lon1 - lon2;
+            return Math.Sqrt(dLat * dLat + dLon * dLon);
         }
 
         public async Task<List<OsmTourismPlaceModel>> GetArkhangelskTourismPlacesFromOsmAsync()
@@ -267,97 +505,22 @@ namespace Trevoria
 
             return TouristicPlaces
                 .Where(p => p.TourismType?
-                .Equals(type, StringComparison.OrdinalIgnoreCase) == true 
+                .Equals(type, StringComparison.OrdinalIgnoreCase) == true
                 && p.Lat >= minLat && p.Lat <= maxLat && p.Lon >= minLon && p.Lon <= maxLon)
                 .ToList();
         }
 
-        private void CreateLineRoute()
+        private void AddPin(double lat, double lon, string label, Microsoft.Maui.Graphics.Color color)
         {
-            switch (RouteType)
+            var pin = new Mapsui.UI.Maui.Pin(mapView)
             {
-                case "empty":
-
-                    _lineCoordinates = new()
-                    {
-                        new Coordinate(_whereFromPosition.X, _whereFromPosition.Y),
-                        new Coordinate(_whereToPosition.X, _whereToPosition.Y)
-                    };
-
-                    DrawRouteByWaypoints(_lineCoordinates);
-
-                    break;
-                case "nature":
-
-                    _lineCoordinates = new()
-                    {
-                       new Coordinate(37.6173, 56.7558),
-                        new Coordinate(49.7015, 47.2357),
-                        new Coordinate(30.3141, 29.9386)
-                    };
-                    DrawRouteByWaypoints(_lineCoordinates);
-
-                    break;
-                case "art":
-
-                    _lineCoordinates = new()
-                    {
-                        new Coordinate(27.6173, 55.7558),
-                        new Coordinate(39.7015, 67.2357),
-                        new Coordinate(30.3141, 19.9386)
-                    };
-
-                    DrawRouteByWaypoints(_lineCoordinates);
-
-                    break;
-                case "food":
-                    _lineCoordinates = new()
-                    {
-                        new Coordinate(37.6173, 56.7558),
-                        new Coordinate(9.7015, 47.2357),
-                        new Coordinate(38.3141, 59.9386)
-                    };
-
-                    DrawRouteByWaypoints(_lineCoordinates);
-
-                    break;
-                case "history":
-
-                    _lineCoordinates = new()
-                    {
-                        new Coordinate(3.6173, 55.7558),
-                        new Coordinate(39.7015, 7.2357),
-                        new Coordinate(3.3141, 60.9386)
-                    };
-                    DrawRouteByWaypoints(_lineCoordinates);
-
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void AddPin(double latitude, double longitude, string name, Microsoft.Maui.Graphics.Color color)
-        {
-            var pin = new Pin(new MapView())
-            {
-                Position = new Mapsui.UI.Maui.Position(latitude, longitude),
-                Type = PinType.Pin,
-                Label = name,
-                Color = color,
-                Scale = 0.5f
+                Label = label,
+                Position = new Mapsui.UI.Maui.Position(lat, lon),
+                Type = Mapsui.UI.Maui.PinType.Pin,
+                Color = color
             };
 
             mapView.Pins.Add(pin);
-
-            try
-            {
-                _mapPinsDictionary.Add(name, pin);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Load error: {ex.Message}");
-            }
         }
 
         private void SetLocationEntry_TextChanged(object sender, TextChangedEventArgs e)
@@ -404,11 +567,11 @@ namespace Trevoria
             try
             {
                 if (_whereFromPosition == null)
-                    _whereFromPosition = new Coordinate();
+                    _whereFromPosition = new Microsoft.Maui.Devices.Sensors.Location();
 
-                _whereFromPosition.X = town.Lat;
-                _whereFromPosition.Y = town.Lon;
-                UpdateCurrentUserLocation(_whereFromPosition.X, _whereFromPosition.Y);
+                _whereFromPosition.Latitude = town.Lat;
+                _whereFromPosition.Longitude = town.Lon;
+                UpdateCurrentUserLocation(_whereFromPosition.Latitude, _whereFromPosition.Longitude);
                 CenterMapOnLocation(_map, town.Lat, town.Lon);
             }
             catch (Exception ex)
@@ -453,6 +616,8 @@ namespace Trevoria
         private async void UpdateCurrentUserLocation(double lat, double lon)
         {
             var userLocation = new Mapsui.UI.Maui.Position(lat, lon);
+            _whereFromPosition.Latitude = userLocation.Latitude;
+            _whereFromPosition.Longitude = userLocation.Longitude;
             mapView.MyLocationEnabled = true;
             mapView.MyLocationLayer.UpdateMyLocation(userLocation);
         }
@@ -464,7 +629,8 @@ namespace Trevoria
             ProfileViewButton.Background = Colors.Transparent;
             RouteViewButton.Background = Colors.Transparent;
             HistoryViewButton.Background = Colors.Transparent;
-            ((Button)sender).Background = Colors.LawnGreen;
+
+            ((Button)sender).Background = new SolidColorBrush(_color);
 
             ProfileViewButton.TextColor = Colors.DarkGray;
             RouteViewButton.TextColor = Colors.DarkGray;
@@ -479,7 +645,8 @@ namespace Trevoria
             ProfileViewButton.Background = Colors.Transparent;
             HistoryViewButton.Background = Colors.Transparent;
             FavouritesViewButton.Background = Colors.Transparent;
-            ((Button)sender).Background = Colors.LawnGreen;
+
+            ((Button)sender).Background = new SolidColorBrush(_color);
 
             ProfileViewButton.TextColor = Colors.DarkGray;
             FavouritesViewButton.TextColor = Colors.DarkGray;
@@ -494,7 +661,8 @@ namespace Trevoria
             ProfileViewButton.Background = Colors.Transparent;
             RouteViewButton.Background = Colors.Transparent;
             FavouritesViewButton.Background = Colors.Transparent;
-            ((Button)sender).Background = Colors.LawnGreen;
+
+            ((Button)sender).Background = new SolidColorBrush(_color);
 
             ProfileViewButton.TextColor = Colors.DarkGray;
             RouteViewButton.TextColor = Colors.DarkGray;
@@ -509,13 +677,15 @@ namespace Trevoria
             HistoryViewButton.Background = Colors.Transparent;
             RouteViewButton.Background = Colors.Transparent;
             FavouritesViewButton.Background = Colors.Transparent;
-            ((Button)sender).Background = Colors.LawnGreen;
+
+            ((Button)sender).Background = new SolidColorBrush(_color);
 
             RouteViewButton.TextColor = Colors.DarkGray;
             FavouritesViewButton.TextColor = Colors.DarkGray;
             HistoryViewButton.TextColor = Colors.DarkGray;
             ((Button)sender).TextColor = Colors.White;
         }
+
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));

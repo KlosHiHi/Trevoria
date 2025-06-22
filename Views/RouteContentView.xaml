@@ -9,12 +9,30 @@
                AbsoluteLayout.LayoutBounds="0.5, 0" 
                AbsoluteLayout.LayoutFlags="XProportional"/>
         </AbsoluteLayout>
-        
-        <Frame Grid.ColumnSpan="3" >
-            <Entry x:Name="LocationFromEntry"
+
+        <Frame x:Name="LocationFromFrame" 
+               Grid.ColumnSpan="3"
+               HasShadow="True"
+               Padding="0"
+               HorizontalOptions="FillAndExpand">
+            <VerticalStackLayout>
+                <Entry x:Name="LocationFromEntry"
                    Placeholder="Откуда"
                    HorizontalTextAlignment="Center" 
-            PlaceholderColor="DarkGray" TextColor="Black"/>
+                    PlaceholderColor="DarkGray" TextColor="Black"
+                     TextChanged="LocationFromEntry_TextChanged"/>
+                <ListView x:Name="SuggestionsListFrom"
+                IsVisible="False"
+                SelectionMode="Single"
+                ItemSelected="SuggestionsListFrom_ItemSelected"
+                RowHeight="44">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextCell Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </VerticalStackLayout>
         </Frame>
         
         <AbsoluteLayout>
@@ -24,11 +42,30 @@
                     AbsoluteLayout.LayoutFlags="XProportional"
                     Clicked="ChangeDirectionButton_Clicked"/>
         </AbsoluteLayout>
-        
-        <Frame Grid.ColumnSpan="3">
+
+        <Frame x:Name="LocationToFrame"
+               HasShadow="True"
+               Padding="0"
+               HorizontalOptions="FillAndExpand">
+            <VerticalStackLayout>
                 <Entry x:Name="LocationToEntry"
-                    Placeholder="Куда"
-                    HorizontalTextAlignment="Center"/>
+                       Placeholder="Куда"
+                       HorizontalTextAlignment="Center"
+                       PlaceholderColor="DarkGray" 
+                       TextColor="Black"
+                       TextChanged="LocationToEntry_TextChanged"/>
+                <ListView x:Name="SuggestionsListTo"
+                            IsVisible="False"
+                            SelectionMode="Single"
+                            ItemSelected="SuggestionsListTo_ItemSelected"
+                            RowHeight="44">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextCell Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </VerticalStackLayout>
         </Frame>
 
         <AbsoluteLayout>
@@ -37,21 +74,17 @@
                    AbsoluteLayout.LayoutFlags="XProportional"/>
         </AbsoluteLayout>
         <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="15">
-
-            <Image Source="empty.png"/>
-            <RadioButton Value="1" CheckedChanged="RouteRadioButton_CheckedChanged"/>
-
             <Image Source="tree.png"/>
-            <RadioButton Value="2" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+            <RadioButton x:Name="NatureRadio" GroupName="RouteType" Value="2" CheckedChanged="RouteRadioButton_CheckedChanged"/>
 
             <Image Source="paint_brush_household.png"/>
-            <RadioButton Content="" Value="3" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+            <RadioButton x:Name="ArtRadio" GroupName="RouteType" Value="3" CheckedChanged="RouteRadioButton_CheckedChanged"/>
 
             <Image Source="hamburger.png"/>
-            <RadioButton Value="4" CheckedChanged="RouteRadioButton_CheckedChanged"/>
+            <RadioButton x:Name="FoodRadio" GroupName="RouteType" Value="4" CheckedChanged="RouteRadioButton_CheckedChanged"/>
 
             <Image Source="castle_turret.png"/>
-            <RadioButton Value="5" CheckedChanged="RouteRadioButton_CheckedChanged"/>            
+            <RadioButton x:Name="HistoryRadio" GroupName="RouteType" Value="5" CheckedChanged="RouteRadioButton_CheckedChanged"/>
         </StackLayout>
 
         <AbsoluteLayout>
@@ -62,16 +95,18 @@
         <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="15">
             
             <Image Source="person_simple_hike.png"/>
-            <RadioButton Value="1" CheckedChanged="MovementRadioButton_CheckedChanged"/>
+            <RadioButton x:Name="FootRadio" GroupName="MovementType" Value="1" CheckedChanged="MovementRadioButton_CheckedChanged"/>
 
             <Image Source="person_simple_bike.png"/>
-            <RadioButton Value="2" CheckedChanged="MovementRadioButton_CheckedChanged"/>
+            <RadioButton x:Name="BikeRadio" GroupName="MovementType" Value="2" CheckedChanged="MovementRadioButton_CheckedChanged"/>
 
             <Image Source="car_profile.png"/>
-            <RadioButton Value="3" CheckedChanged="MovementRadioButton_CheckedChanged"/>            
+            <RadioButton x:Name="CarRadio" GroupName="MovementType" Value="3" CheckedChanged="MovementRadioButton_CheckedChanged"/>            
         </StackLayout>
         <AbsoluteLayout Margin="5">
-            <Button Text="Сгенерировать маршрут"
+            <Button x:Name="BuildRouteButton"
+                Text="Сгенерировать маршрут"
+                    IsEnabled="False"
                     HeightRequest="50"
                     VerticalOptions="Center"
                     AbsoluteLayout.LayoutBounds="0.5, 0"
@@ -80,19 +115,6 @@
                     TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}"
                     Style="{StaticResource UserLocationButton}"
                     Clicked="Button_Clicked"/>
-        </AbsoluteLayout>
-
-        <AbsoluteLayout>
-            <Label Text="Предложенные варианты"
-                   AbsoluteLayout.LayoutBounds="0.5, 0"
-                   AbsoluteLayout.LayoutFlags="XProportional"/>
-        </AbsoluteLayout>
-
-        <AbsoluteLayout>
-            <Label 
-                Text="Пользовательский варианты"
-                AbsoluteLayout.LayoutBounds="0.5, 0"
-                AbsoluteLayout.LayoutFlags="XProportional"/>
         </AbsoluteLayout>
     </VerticalStackLayout>
 </ContentView>

@@ -46,16 +46,13 @@
                 </ScrollView>
 
                 <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never">
-                    <StackLayout Orientation="Vertical">
 
-                        <ContentView x:Name="MainContentView"/>
+                    <ContentView x:Name="MainContentView"/>
 
-                    </StackLayout>
                 </ScrollView>
             </StackLayout>
         </wits:BottomSheet>
 
-        <Button Clicked="Button_Clicked"/>
 
         <ContentView Grid.ColumnSpan="3" Margin="10">
             
